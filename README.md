@@ -1,108 +1,138 @@
-# ePhishient AI - Phishing URL Detector
+ePhishient AI – Phishing URL Detection System
 
-ePhishient AI is a machine learning-powered web application designed to detect phishing URLs in real-time. It analyzes the lexical structure of a URL to determine the likelihood of it being malicious, providing users with a confidence score and detailed breakdown of risk factors.
+ePhishient AI is a machine learning–based web application that detects phishing URLs in real time.
+The system evaluates the lexical structure of a URL to estimate whether it is malicious, returning a confidence score along with a transparent breakdown of contributing risk factors.
 
-## 🚀 Features
 
--   **Real-time Analysis**: Instantly checks URLs against a trained Random Forest model.
--   **Lexical Feature Extraction**: Analyzes over 20 distinct features (entropy, special characters, length, etc.) without needing to visit the site content.
--   **Live Model Retraining**: Allows administrators to trigger a model retrain directly from the UI using the latest threat intelligence feeds.
--   **Responsive UI**: Mobile-friendly design with Dark Mode support.
--   **Reporting**: Export analysis results to PDF or copy to clipboard.
--   **Live Data Sources**: Fetches training data dynamically from PhishTank, OpenPhish, URLhaus, and Tranco.
 
-## 🛠️ Technical Architecture
+Features
 
-The project is built using **Python (Flask)** for the backend and **HTML/CSS/JavaScript** for the frontend.
+* Real-Time URL Analysis
+  Classifies URLs instantly using a trained Random Forest model.
 
-### 1. Data Collection (`data_loader.py`)
-The system automatically aggregates data from multiple sources to build a balanced dataset:
--   **Malicious Sources**:
-    -   **PhishTank**: Online valid phishing URLs.
-    -   **OpenPhish**: Feed of known phishing sites.
-    -   **URLhaus**: Recent malware URL distribution sites.
--   **Benign Sources**:
-    -   **Tranco List**: Top 1 Million popular domains (uses top 3,000 for training).
--   **Balancing**: The loader ensures an equal distribution of malicious and benign URLs to prevent model bias.
+* Lexical Feature-Based Detection
+  Extracts over 20 structural and statistical features without visiting or executing content from the target URL.
 
-### 2. Feature Engineering (`train_model.py`)
-Instead of relying on blacklists, the model analyzes the *structure* of the URL. The `PhishingDetector` class extracts 20 features, including:
--   **Structural**: URL length, hostname length, path length, TLD length.
--   **Statistical**: Counts of special characters (`-`, `@`, `?`, `%`, `.`, `=`, `&`, `_`).
--   **Entropy**: Calculates the randomness of the URL string (high entropy often indicates algorithmic generation).
--   **Indicators**: Checks for IP addresses in hostnames, use of URL shorteners, and sensitive keywords (e.g., "login", "secure").
+* On-Demand Model Retraining
+  Administrators can retrain the model directly from the web interface using updated threat intelligence feeds.
 
-### 3. Machine Learning Model
--   **Algorithm**: Random Forest Classifier (`sklearn.ensemble.RandomForestClassifier`).
--   **Training**: The model is trained on the processed feature set.
--   **Persistence**: The trained model is saved as `phishing_model.pkl` for quick inference.
+* Responsive User Interface
+  Fully responsive frontend with optional dark mode support.
 
-### 4. Web Application (`app.py`)
--   **Framework**: Flask.
--   **Routes**:
-    -   `/`: Renders the main interface.
-    -   `/predict`: Accepts a URL, validates reachability, extracts features, and returns the prediction/confidence score.
-    -   `/retrain`: Triggers the data loading and training pipeline in the background.
+* Result Exporting
+  Analysis results can be copied to the clipboard or exported as a PDF.
 
-### 5. Frontend (`templates/index.html` & `static/`)
--   **Interaction**: Users input URLs, which are sent via AJAX (`fetch`) to the backend.
--   **Visualization**: Displays a risk meter, confidence percentage, and a list of specific reasons for the diagnosis.
--   **Utilities**: Includes theme toggling, clipboard copying, and PDF generation using `jspdf`.
+* Live Threat Intelligence Integration
+  Training data is fetched dynamically from reputable phishing and benign URL sources.
 
-## 📂 Project Structure
 
-```text
-phishing_ml/
-├── app.py                 # Main Flask application entry point
-├── data_loader.py         # Script to fetch and prepare training data
-├── train_model.py         # ML model definition and feature extraction logic
-├── phishing_model.pkl     # Serialized trained model (generated after training)
-├── top-1m.csv             # (Optional) Local copy of benign domains
-├── templates/
-│   └── index.html         # Main web interface
-└── static/
-    ├── style.css          # Styling (Dark mode, responsive layout)
-    └── script.js          # Frontend logic (API calls, UI updates, Modals)
-```
 
-## ⚙️ Installation & Setup
+Technical Architecture
 
-### Prerequisites
--   Python 3.8+
--   pip (Python Package Manager)
+The application uses Python (Flask) for the backend and HTML, CSS, and JavaScript for the frontend.
 
-### Steps
 
-1.  **Install Dependencies**:
-    ```bash
-    pip install flask pandas numpy scikit-learn requests joblib
-    ```
 
-2.  **Initial Training**:
-    Before running the app, generate the model file:
-    ```bash
-    python train_model.py
-    ```
-    *Note: This will download data from the internet. If you have a local `top-1m.csv`, place it in the root directory to speed this up.*
+Data Collection (data_loader.py)
 
-3.  **Run the Application**:
-    ```bash
-    python app.py
-    ```
+The system aggregates URLs from multiple sources to build a balanced dataset.
 
-4.  **Access**:
-    Open your browser and navigate to `http://localhost:5000`.
+Malicious URL Sources
 
-## 🔍 Usage
+* PhishTank – Verified phishing URLs
+* OpenPhish – Active phishing feed
+* URLhaus – Malware distribution URLs
 
-1.  **Analyze**: Enter a URL (e.g., `http://google.com` or a suspicious link) and press Enter or click "Analyze".
-2.  **Review**: Check the "Safe" or "Warning" status, confidence score, and specific risk factors (e.g., "Hostname is an IP address").
-3.  **Share**: Click "Share Result" to copy the report or download it as a PDF.
-4.  **Retrain**: If the model feels outdated, click "Retrain AI Model" at the bottom to fetch fresh data and update the logic.
+Benign URL Source
 
-## 🛡️ Security Note
+* Tranco Top Sites List (top 3,000 domains used)
 
-This tool analyzes URL strings and attempts to ping the server to verify reachability. It does **not** download page content or execute scripts from the target URL, making it safe to use for scanning potential threats.
+Dataset Balancing
 
----
-*Powered by Flask & Scikit-Learn*
+* Ensures equal representation of benign and malicious samples to reduce model bias.
+
+
+
+Feature Engineering (train_model.py)
+
+Instead of relying on static blacklists, the model evaluates the structural properties of URLs.
+The PhishingDetector class extracts 20 lexical features, including:
+
+Structural Features
+
+* Total URL length
+* Hostname length
+* Path length
+* Top-level domain (TLD) length
+
+Statistical Features
+
+* Frequency of special characters such as -, @, ?, %, ., =, &, and _
+
+Entropy Analysis
+
+* Measures randomness within the URL string, often associated with algorithmically generated phishing links.
+
+Heuristic Indicators
+
+* Presence of IP addresses in hostnames
+* Use of URL shorteners
+* Sensitive keywords such as login, secure, or account
+
+
+
+Machine Learning Model
+
+* Algorithm: Random Forest Classifier
+* Library: sklearn.ensemble.RandomForestClassifier
+* Training: Performed on the extracted lexical feature set
+* Persistence: The trained model is serialized as phishing_model.pkl for fast inference
+
+
+
+Web Application (app.py)
+
+Framework
+
+* Flask
+
+Endpoints
+
+* / : Renders the main user interface
+* /predict : Accepts a URL, extracts features, and returns a classification with confidence score
+* /retrain : Executes the data collection and training pipeline in the background
+
+
+
+Frontend (templates and static)
+
+User Interaction
+
+* URLs are submitted via AJAX fetch requests.
+
+Visualization
+
+* Displays risk level, confidence percentage, and individual risk indicators.
+
+Utilities
+
+* Dark mode toggle
+* Clipboard copying
+* PDF report generation using jsPDF
+
+
+
+Usage Guide
+
+1. Enter a URL into the input field.
+2. Submit the URL for analysis.
+3. Review the classification result, confidence score, and detected risk factors.
+4. Export or share the results if needed.
+5. Retrain the model when updated threat data is required.
+
+
+
+Security Considerations
+
+This application analyzes only the textual structure of URLs.
+While it may check basic reachability, it does not fetch page content, execute scripts, or render external resources, making it safe for evaluating potentially malicious links.

@@ -86,6 +86,7 @@ Machine Learning Model
 * Algorithm: Random Forest Classifier
 * Library: sklearn.ensemble.RandomForestClassifier
 * Training: Performed on the extracted lexical feature set
+* Accuracy: 99.88%
 * Persistence: The trained model is serialized as phishing_model.pkl for fast inference
 
 

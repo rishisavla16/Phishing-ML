@@ -71,10 +71,10 @@ def retrain_model():
     """
     Manually trigger model retraining.
     """
-    detector.train()
+    accuracy = detector.train()
     # Reload the model into memory
     detector.model = joblib.load('phishing_model.pkl')
-    return jsonify({'status': 'success', 'message': 'Model retrained with new data!'})
+    return jsonify({'status': 'success', 'message': f'Model retrained with new data! Accuracy: {accuracy:.2%}'})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

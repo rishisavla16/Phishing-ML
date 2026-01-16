@@ -123,11 +123,14 @@ class PhishingDetector:
         self.model.fit(X_train, y_train)
         
         preds = self.model.predict(X_test)
-        print(f"Model Accuracy: {accuracy_score(y_test, preds)}")
+        accuracy = accuracy_score(y_test, preds)
+        print(f"Model Accuracy: {accuracy}")
+        print(classification_report(y_test, preds))
         
         # Save model
         joblib.dump(self.model, 'phishing_model.pkl')
         print("Model saved to phishing_model.pkl")
+        return accuracy
 
 if __name__ == "__main__":
     detector = PhishingDetector()
